@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: http://127.0.0.1:* https://www.youtube-nocookie.com https://www.youtube.com https://ws-us2.pusher.com wss://ws-us2.pusher.com;
+                   media-src 'self' blob: data: http://127.0.0.1:*;
+                   img-src 'self' data: blob: http://127.0.0.1:* https:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kedi Lo-Fi Pomodoro 🐾</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="bg-cats" id="bgCats" aria-hidden="true"></div>
+    <div class="bg-orbs" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="app-container" id="app">
+
+        <!-- Üst bar -->
+        <div class="top-bar">
+            <div class="title-wrap">
+                <span class="title-logo">🐾</span>
+                <span class="title">Kedi Lo-Fi</span>
+                <span class="title-badge">Pomodoro</span>
+            </div>
+            <div class="top-btns">
+                <button id="helpBtn" title="Klavye Kısayolları" aria-label="Yardım">?</button>
+                <button id="fsBtn" title="Tam Ekran (F)" aria-label="Tam Ekran">⛶</button>
+                <button id="miniBtn" title="Mini Mod" aria-label="Mini Mod">▭</button>
+            </div>
+        </div>
+
+        <div class="main-layout">
+            <div class="left-col">
+                <!-- Kedi — artık currentColor kullanıyor -->
+                <div class="cat-area" id="catArea" role="img" aria-label="Kedi karakteri">
+                    <svg class="cat-svg" viewBox="0 0 120 120" aria-hidden="true">
+                        <path class="cat-tail" d="M90 88 Q112 78 106 55 Q100 38 88 44" stroke="currentColor"
+                            stroke-width="6" fill="none" stroke-linecap="round" />
+                        <ellipse class="cat-body" cx="60" cy="88" rx="32" ry="24" fill="currentColor" />
+                        <circle class="cat-head" cx="60" cy="55" r="26" />
+                        <polygon class="cat-ear-l" points="42,38 46,18 58,32" fill="currentColor" />
+                        <polygon class="cat-ear-r" points="78,38 74,18 62,32" fill="currentColor" />
+                        <polygon points="46,35 48,24 55,32" fill="#ff9eb5" />
+                        <polygon points="74,35 72,24 65,32" fill="#ff9eb5" />
+                        <ellipse class="cat-eye cat-eye-l" cx="50" cy="55" rx="3" ry="4" />
+                        <ellipse class="cat-eye cat-eye-r" cx="70" cy="55" rx="3" ry="4" />
+                        <circle class="cat-eye-shine" cx="51" cy="53" r="1" />
+                        <circle class="cat-eye-shine" cx="71" cy="53" r="1" />
+                        <polygon points="60,62 58,65 62,65" fill="#ff9eb5" />
+                        <path class="cat-mouth" d="M55 67 Q60 70 60 67 Q60 70 65 67" stroke-width="1.2" fill="none" />
+                        <line class="cat-whisker" x1="35" y1="62" x2="48" y2="64" />
+                        <line class="cat-whisker" x1="35" y1="68" x2="48" y2="67" />
+                        <line class="cat-whisker" x1="85" y1="62" x2="72" y2="64" />
+                        <line class="cat-whisker" x1="85" y1="68" x2="72" y2="67" />
+                    </svg>
+                    <div class="cat-bubble" id="catBubble" role="status" aria-live="polite"></div>
+                    <div class="zzz" id="zzz" aria-hidden="true">💤</div>
+                </div>
+
+                <!-- Timer -->
+                <div class="timer-wrapper" role="timer" aria-label="Pomodoro zamanlayıcı">
+                    <svg class="ring" viewBox="0 0 200 200" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="var(--accent)" />
+                                <stop offset="100%" stop-color="var(--accent-2)" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="ring-bg" cx="100" cy="100" r="90" />
+                        <circle id="ringProgress" class="ring-progress" cx="100" cy="100" r="90"
+                            stroke="url(#ringGrad)" />
+                    </svg>
+                    <div class="timer-text">
+                        <span id="timer" aria-live="off">25:00</span>
+                        <span id="phase">ODAK</span>
+                    </div>
+                </div>
+
+                <div class="round-info" aria-label="Tur bilgisi">
+                    <span id="roundDots" aria-hidden="true"></span>
+                    <span id="roundLabel">1 / 4</span>
+                </div>
+
+                <div class="controls" role="group" aria-label="Zamanlayıcı kontrolleri">
+                    <button id="startBtn" class="btn-primary" aria-label="Başlat (Space)">▶ Başlat</button>
+                    <button id="pauseBtn" class="btn-primary" aria-label="Duraklat (Space)" style="display:none">⏸
+                        Duraklat</button>
+                    <button id="resetBtn" aria-label="Sıfırla (R)">↺</button>
+                    <button id="skipBtn" aria-label="Geç (N)">⏭</button>
+                </div>
+            </div>
+
+            <div class="right-col">
+
+                <!-- NOW PLAYING -->
+                <div class="now-playing" id="nowPlaying">
+                    <div class="np-cover" id="npCover">
+                        <span id="trackCover" class="np-cover-emoji">🎵</span>
+                        <div class="np-cover-ring"></div>
+                    </div>
+                    <div class="np-info">
+                        <span class="np-title" id="trackTitle">Şarkı yok</span>
+                        <span class="np-artist" id="trackArtist">Kütüphaneden ekle veya YouTube URL gir</span>
+                        <div class="np-progress-row">
+                            <span id="curTime">0:00</span>
+                            <input type="range" id="seekBar" min="0" max="100" value="0" step="0.1"
+                                aria-label="Şarkı konumu">
+                            <span id="durTime">0:00</span>
+                        </div>
+                    </div>
+                    <div class="np-controls">
+                        <button id="shuffleBtn" title="Karıştır (S)" aria-label="Karıştır">🔀</button>
+                        <button id="prevTrack" title="Önceki (Shift+←)" aria-label="Önceki şarkı">⏮</button>
+                        <button id="playPauseTrack" class="np-play" title="Çal/Durdur (K)"
+                            aria-label="Çal veya durdur">▶</button>
+                        <button id="nextTrack" title="Sonraki (Shift+→)" aria-label="Sonraki şarkı">⏭</button>
+                        <button id="repeatBtn" title="Tekrar" aria-label="Tekrar modu">🔁</button>
+                    </div>
+                    <div class="np-right">
+                        <div class="visualizer" id="visualizer" aria-hidden="true">
+                            <span></span><span></span><span></span><span></span>
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div class="np-volume">
+                            <span class="vol-icon" id="volIcon">🔊</span>
+                            <input type="range" id="volTrack" min="0" max="1" step="0.05" value="0.6"
+                                aria-label="Müzik sesi">
+                            <span class="vol-mini" id="valTrack">60%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video / YouTube -->
+                <div id="localMediaArea" class="local-media-area" style="display:none;">
+                    <video id="localMedia" controls playsinline preload="metadata"></video>
+                </div>
+
+                <div id="youtubeArea" class="youtube-area" style="display:none;">
+                    <div class="youtube-toolbar">
+                        <span class="yt-label">📺 YouTube</span>
+                        <div class="yt-btns">
+                            <button id="openInYoutubeBtn" title="Tarayıcıda Aç">🌐 Aç</button>
+                            <button id="closeYoutubeBtn" title="Kapat">✕</button>
+                        </div>
+                    </div>
+                    <div id="youtubePlayer"></div>
+                </div>
+
+                <!-- Sekmeler -->
+                <nav class="tabs" role="tablist" aria-label="İçerik sekmeleri">
+                    <button class="tab-btn active" data-tab="library" role="tab" aria-selected="true">📚
+                        Kütüphane</button>
+                    <button class="tab-btn" data-tab="queue" role="tab" aria-selected="false">📋 Kuyruk</button>
+                    <button class="tab-btn" data-tab="history" role="tab" aria-selected="false">🕘 Geçmiş</button>
+                    <button class="tab-btn" data-tab="live" role="tab" aria-selected="false">📡 Canlı</button>
+                    <button class="tab-btn" data-tab="ambient" role="tab" aria-selected="false">🎧 Ambiyans</button>
+                    <button class="tab-btn" data-tab="tasks" role="tab" aria-selected="false">✅ Görevler</button>
+                    <button class="tab-btn" data-tab="stats" role="tab" aria-selected="false">📊 İstatistik</button>
+                    <button class="tab-btn" data-tab="settings" role="tab" aria-selected="false">⚙️ Ayarlar</button>
+                </nav>
+
+                <!-- KÜTÜPHANE -->
+                <div class="tab-panel active" id="tab-library" role="tabpanel">
+                    <div class="lib-toolbar">
+                        <div class="lib-search-wrap">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="libSearch" class="search-input" placeholder="Kütüphanede ara..."
+                                aria-label="Kütüphane arama">
+                            <button class="search-clear" id="clearSearch" aria-label="Temizle"
+                                style="display:none">✕</button>
+                        </div>
+                        <button id="addFilesBtn" class="tool-btn primary" title="Dosya Ekle">+ Dosya</button>
+                        <button id="addFolderBtn" class="tool-btn" title="Klasör Ekle">📁</button>
+                        <button id="viewToggleBtn" class="tool-btn" title="Görünüm">▦</button>
+                    </div>
+                    <div class="lib-meta">
+                        <span id="libraryCount">0 parça</span>
+                    </div>
+                    <ul id="libraryList" class="track-list" role="list"></ul>
+                </div>
+
+                <!-- KUYRUK -->
+                <div class="tab-panel" id="tab-queue" role="tabpanel">
+                    <div class="row-btns">
+                        <div class="lib-search-wrap" style="flex:1">
+                            <span class="search-icon">📺</span>
+                            <input type="text" id="youtubeUrl" class="search-input" placeholder="YouTube URL veya ID..."
+                                aria-label="YouTube URL">
+                        </div>
+                        <button id="addYoutubeBtn" class="tool-btn primary" style="flex:0 0 auto">+ Ekle</button>
+                    </div>
+                    <div class="row-btns">
+                        <button id="clearQueue" class="mini-btn danger">🗑 Temizle</button>
+                        <button id="shuffleQueue" class="mini-btn">🔀 Karıştır</button>
+                        <span class="queue-count" id="queueCount"></span>
+                    </div>
+                    <ul id="queueList" class="track-list" role="list"></ul>
+                </div>
+
+                <!-- GEÇMİŞ -->
+                <div class="tab-panel" id="tab-history" role="tabpanel">
+                    <div class="row-btns">
+                        <button id="clearHistoryBtn" class="mini-btn danger">🗑 Geçmişi Temizle</button>
+                    </div>
+                    <ul id="historyList" class="track-list" role="list"></ul>
+                </div>
+
+                <!-- CANLI -->
+                <div class="tab-panel" id="tab-live" role="tabpanel">
+                    <div class="row-btns">
+                        <div class="lib-search-wrap" style="flex:1">
+                            <span class="search-icon">📡</span>
+                            <input type="text" id="kickChannel" class="search-input"
+                                placeholder="Kick kanal adı (ör: xqc)" aria-label="Kick kanal adı">
+                        </div>
+                        <button id="connectKick" class="tool-btn primary" style="flex:0 0 auto">Bağlan</button>
+                    </div>
+                    <div class="live-status" id="liveStatus" role="status">⚪ Bağlı değil</div>
+                    <div class="cmd-info">
+                        <span>Komutlar:</span>
+                        <code>!sr &lt;youtube_url&gt;</code>
+                        <code>!sr &lt;şarkı adı&gt;</code>
+                    </div>
+                    <div class="chat-log" id="chatLog" role="log">
+                        <div class="empty-hint">Sohbet mesajları burada görünecek.</div>
+                    </div>
+                </div>
+
+                <!-- AMBİYANS -->
+                <div class="tab-panel" id="tab-ambient" role="tabpanel">
+                    <div class="preset-row">
+                        <label class="preset-label">🎯 Hazır Mod</label>
+                        <div class="preset-btns">
+                            <button class="preset-btn" data-preset="study">📚 Çalışma</button>
+                            <button class="preset-btn" data-preset="relax">🧘 Rahatlama</button>
+                            <button class="preset-btn" data-preset="night">🌙 Gece</button>
+                            <button class="preset-btn" data-preset="beach">🏖️ Plaj</button>
+                            <button class="preset-btn" data-preset="forest">🌲 Orman</button>
+                            <button class="preset-btn" data-preset="storm">⛈️ Fırtına</button>
+                            <button class="preset-btn" data-preset="silence">🔇 Sessiz</button>
+                        </div>
+                    </div>
+                    <div class="slider-row">
+                        <label for="volRain">🌧️ Yağmur</label>
+                        <input type="range" id="volRain" min="0" max="1" step="0.05" value="0">
+                        <span class="vol-val" id="valRain">0%</span>
+                    </div>
+                    <div class="slider-row">
+                        <label for="volThunder">⛈️ Gök Gürültüsü</label>
+                        <input type="range" id="volThunder" min="0" max="1" step="0.05" value="0">
+                        <span class="vol-val" id="valThunder">0%</span>
+                    </div>
+                    <div class="slider-row">
+                        <label for="volCafe">☕ Kafe</label>
+                        <input type="range" id="volCafe" min="0" max="1" step="0.05" value="0">
+                        <span class="vol-val" id="valCafe">0%</span>
+                    </div>
+                    <div class="slider-row">
+                        <label for="volFire">🔥 Ateş</label>
+                        <input type="range" id="volFire" min="0" max="1" step="0.05" value="0">
+                        <span class="vol-val" id="valFire">0%</span>
+                    </div>
+                    <div class="slider-row">
+                        <label for="volWind">🎐 Rüzgar</label>
+                        <input type="range" id="volWind" min="0" max="1" step="0.05" value="0">
+                        <span class="vol-val" id="valWind">0%</span>
+                    </div>
+                    <div class="slider-row">
+                        <label for="volWaves">🌊 Dalga</label>
+                        <input type="range" id="volWaves" min="0" max="1" step="0.05" value="0">
+                        <span class="vol-val" id="valWaves">0%</span>
+                    </div>
+                    <div class="slider-row">
+                        <label for="volBirds">🐦 Kuş</label>
+                        <input type="range" id="volBirds" min="0" max="1" step="0.05" value="0">
+                        <span class="vol-val" id="valBirds">0%</span>
+                    </div>
+                    <div class="slider-row">
+                        <label for="volCrickets">🦗 Cırcır</label>
+                        <input type="range" id="volCrickets" min="0" max="1" step="0.05" value="0">
+                        <span class="vol-val" id="valCrickets">0%</span>
+                    </div>
+                    <div class="slider-row">
+                        <label for="volKeyboard">💻 Klavye</label>
+                        <input type="range" id="volKeyboard" min="0" max="1" step="0.05" value="0">
+                        <span class="vol-val" id="valKeyboard">0%</span>
+                    </div>
+                    <div class="master-row">
+                        <label for="masterVol">🔊 Ana Ses</label>
+                        <input type="range" id="masterVol" min="0" max="1" step="0.05" value="0.85">
+                        <span class="vol-val" id="valMaster">85%</span>
+                    </div>
+                    <button id="muteBtn" class="mini-btn">🔇 Tümünü Sessize Al (M)</button>
+                </div>
+
+                <!-- GÖREVLER -->
+                <div class="tab-panel" id="tab-tasks" role="tabpanel">
+                    <div class="task-input-row">
+                        <input type="text" id="taskInput" placeholder="Yeni görev ekle..." maxlength="200">
+                        <button id="addTaskBtn" class="btn-primary">+</button>
+                    </div>
+                    <ul id="taskList" class="task-list" role="list"></ul>
+                </div>
+
+                <!-- İSTATİSTİK -->
+                <div class="tab-panel" id="tab-stats" role="tabpanel">
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="statToday">0</div>
+                            <div class="stat-label">Bugün</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statWeek">0</div>
+                            <div class="stat-label">Bu Hafta</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statTotal">0</div>
+                            <div class="stat-label">Toplam</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statHours">0dk</div>
+                            <div class="stat-label">Odak Süresi</div>
+                        </div>
+                    </div>
+                    <button id="resetStatsBtn" class="mini-btn danger">🗑 İstatistikleri Sıfırla</button>
+                </div>
+
+                <!-- AYARLAR -->
+                <div class="tab-panel" id="tab-settings" role="tabpanel">
+
+                    <div class="settings-section">
+                        <div class="settings-title">🎨 Tema</div>
+                        <div class="theme-grid" id="themeGrid">
+                            <button class="theme-card" data-theme="midi">
+                                <span class="theme-swatch"
+                                    style="background:linear-gradient(135deg,#c8a2ff,#a880ff)"></span>
+                                <span class="theme-name">Midnight</span>
+                            </button>
+                            <button class="theme-card" data-theme="sakura">
+                                <span class="theme-swatch"
+                                    style="background:linear-gradient(135deg,#ff9eb5,#ff6b9d)"></span>
+                                <span class="theme-name">Sakura</span>
+                            </button>
+                            <button class="theme-card" data-theme="ocean">
+                                <span class="theme-swatch"
+                                    style="background:linear-gradient(135deg,#7ee0ff,#4aa3df)"></span>
+                                <span class="theme-name">Okyanus</span>
+                            </button>
+                            <button class="theme-card" data-theme="forest">
+                                <span class="theme-swatch"
+                                    style="background:linear-gradient(135deg,#a8e6a1,#4caf7a)"></span>
+                                <span class="theme-name">Orman</span>
+                            </button>
+                            <button class="theme-card" data-theme="sunset">
+                                <span class="theme-swatch"
+                                    style="background:linear-gradient(135deg,#ffb87e,#ff6b6b)"></span>
+                                <span class="theme-name">Gün Batımı</span>
+                            </button>
+                            <button class="theme-card" data-theme="aurora">
+                                <span class="theme-swatch"
+                                    style="background:linear-gradient(135deg,#6effc0,#a880ff)"></span>
+                                <span class="theme-name">Kuzey Işığı</span>
+                            </button>
+                            <button class="theme-card" data-theme="cocoa">
+                                <span class="theme-swatch"
+                                    style="background:linear-gradient(135deg,#d4a373,#a47148)"></span>
+                                <span class="theme-name">Kakao</span>
+                            </button>
+                            <button class="theme-card" data-theme="mono">
+                                <span class="theme-swatch"
+                                    style="background:linear-gradient(135deg,#e0e0e0,#808080)"></span>
+                                <span class="theme-name">Minimal</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="settings-title">⏱️ Pomodoro</div>
+                        <div class="setting-row">
+                            <label for="setFocus">Odak süresi (dk)</label>
+                            <input type="number" id="setFocus" min="1" max="120" value="25">
+                        </div>
+                        <div class="setting-row">
+                            <label for="setBreak">Kısa mola (dk)</label>
+                            <input type="number" id="setBreak" min="1" max="60" value="5">
+                        </div>
+                        <div class="setting-row">
+                            <label for="setLongBreak">Uzun mola (dk)</label>
+                            <input type="number" id="setLongBreak" min="1" max="60" value="15">
+                        </div>
+                        <div class="setting-row">
+                            <label for="setLongEvery">Uzun mola aralığı</label>
+                            <input type="number" id="setLongEvery" min="1" max="10" value="4">
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="settings-title">⚙️ Davranış</div>
+                        <div class="setting-row checkbox">
+                            <input type="checkbox" id="setAutoStart">
+                            <label for="setAutoStart">Fazlar otomatik başlasın</label>
+                        </div>
+                        <div class="setting-row checkbox">
+                            <input type="checkbox" id="setSoundAlert" checked>
+                            <label for="setSoundAlert">Faz bitince ses çal</label>
+                        </div>
+                        <div class="setting-row checkbox">
+                            <input type="checkbox" id="setAutoDuck">
+                            <label for="setAutoDuck">Odakta müzik sesini %30'a düşür</label>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="settings-title">⏰ Uyku Zamanlayıcı</div>
+                        <div class="setting-row">
+                            <label for="setSleepTimer">Süre</label>
+                            <select id="setSleepTimer" class="settings-select">
+                                <option value="0">Kapalı</option>
+                                <option value="15">15 dakika</option>
+                                <option value="30">30 dakika</option>
+                                <option value="45">45 dakika</option>
+                                <option value="60">1 saat</option>
+                                <option value="90">1.5 saat</option>
+                                <option value="120">2 saat</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button id="saveSettings" class="mini-btn primary">💾 Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <script src="sound-engine.js"></script>
+    <script src="kick-chat.js"></script>
+    <script src="renderer.js"></script>
+</body>
+
+</html>

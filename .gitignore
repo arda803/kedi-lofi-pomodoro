@@ -1,0 +1,50 @@
+# Node modules (çok büyük, gerek yok)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Electron build çıktıları
+dist/
+build/
+out/
+
+# Electron cache
+.electron/
+.electron-builder-cache/
+
+# Assets (ikonlar build sırasında üretiliyor)
+assets/kedu.png
+assets/kedu.ico
+!assets/.gitkeep
+
+# Kullanıcı verileri (bunlar app çalışınca oluşur)
+*.log
+stats.json
+library.json
+settings.json
+*-history.json
+
+# OS dosyaları
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Env
+.env
+.env.local
+
+# Kullanıcı test dosyaları
+test-media/
+*.mp3
+*.mp4
+*.wav
+*.webm

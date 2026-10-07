@@ -1,0 +1,64 @@
+{
+  "name": "kedi-lofi-pomodoro",
+  "version": "1.0.0",
+  "description": "Kedi temalı Lo-Fi Pomodoro Uygulaması",
+  "main": "main.js",
+  "author": "Kedilercoksel",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable",
+    "dist-installer": "electron-builder --win nsis"
+  },
+  "build": {
+    "appId": "com.kedilercoksel.pomodoro",
+    "productName": "Kedi Lo-Fi Pomodoro",
+    "copyright": "Copyright © 2024 Kedilercoksel",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "asar": true,
+    "asarUnpack": [],
+    "files": [
+      "main.js",
+      "index.html",
+      "style.css",
+      "renderer.js",
+      "sound-engine.js",
+      "kick-chat.js",
+      "assets/**/*",
+      "node_modules/serve-handler/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/kedu.ico",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "portable": {
+      "artifactName": "KediLoFiPomodoro.exe",
+      "requestExecutionLevel": "user"
+    }
+  },
+  "dependencies": {
+    "serve-handler": "^6.1.6"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "allowScripts": {
+    "electron@33.4.11": true
+  }
+}
